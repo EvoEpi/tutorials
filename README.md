@@ -18,7 +18,7 @@ FASTQ="" #name of fastq file
 gffread ${GFF} -T -o ${SPECIES}.gtf
 python extract_splice_sites.py ${SPECIES}.gtf > ${SPECIES}.ss
 python extract_exons.py ${SPECIES}.gtf > ${SPECIES}.exon
-time hisat2-build \
+hisat2-build \
 -p ${NP} \
 --ss ${SPECIES}.ss \
 --exon ${SPECIES}.exon \
@@ -41,7 +41,7 @@ ${SAMPLE}_map/${SAMPLE}.sam
 rm ${SAMPLE}_map/*.sam
 ```
 
-Step 2. Assembly. Now we need to assemble the mapped reads into transcripts. `StringTie` can assemble transcripts with or without annotation.
+Step 2. Assembly. Now we need to assemble the mapped reads into transcripts. `StringTie` can assemble transcripts with or without annotation. With annotation:
 
 ```bash
 SAMPLE="" #identifier associated with fastq
