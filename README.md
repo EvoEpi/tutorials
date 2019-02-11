@@ -84,7 +84,7 @@ REV="" #basename of the index reference followed by _r
 REF="" #genome reference fasta file
 OUT="" #path to output directory
 NP="" #number of processors
-MEM="" #gb for sorting, '#G'"
+MEM="" #gb for sorting; e.g., '24G'
 PICARD="" #path to picard
 CONTROL="" #seqeunce in fasta file for sodium bisulfite non-conversion rate estimation
 
