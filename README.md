@@ -1,5 +1,161 @@
 # tutorials
-Example workflows to process ChIP-seq, RNA-seq (mRNA and sRNA), and WGBS.
+Example workflows of various programs ranging from processing ChIP-seq, gDNA-seq, RNA-seq (mRNA and sRNA), and WGBS data, and estimating gene and species phylogenies, testing for selection, and more.
+
+## ChIP-seq
+ChIP-sequencing, also known as ChIP-seq, is a method used to analyze protein interactions with DNA. ChIP-seq combines chromatin immunoprecipitation (ChIP) with DNA sequencing to identify the binding sites of DNA-associated proteins. An important part of designing ChIP-Seq experiments is determining what controls to use for the experiment. Chromatin inputs serve as a good control for bias in chromatin fragmentation and variations in sequencing efficiency; additionally, they provide greater and more evenly distributed coverage of the genome ([Kidder et al. 2011](https://www.ncbi.nlm.nih.gov/pubmed/21934668)).
+
+Step 1. Clean-up reads using `Trimmomatic`. See `Trimmomatic` example below.
+
+Step 2. Map reads using [bowtie](http://bowtie-bio.sourceforge.net/index.shtml).
+
+```bash
+REF="" #genome reference fasta file
+INDEX="" #basename of the index files to write
+MOD_FQ="" #fastq filename for modification
+MOD="" #modification identifier
+INPUT_FQ="" #fastq filename for input control
+INPUT="" #input identifier
+NP="" #number of processers
+
+bowtie-build \
+${REF} \
+${INDEX}
+
+bowtie \
+${INDEX} \
+${MOD_FQ} \
+-S ${MOD}.sam \
+-t \
+-p ${NP} \
+-v 2 \
+--best \
+--strata \
+-m 1
+
+bowtie \
+${INDEX} \
+${INPUT_FQ} \
+-S ${INPUT}.sam \
+-t \
+-p ${NP} \
+-v 2 \
+--best \
+--strata \
+-m 1
+```
+
+Step 3. Sort bam file using [SAMtools](http://www.htslib.org/).
+
+```bash
+samtools \
+sort \
+-O 'bam' \
+-o ${MOD}_sorted.bam \
+-T tmp \
+-@ ${NP} \
+${MOD}.sam
+
+samtools \
+sort \
+-O 'bam' \
+-o ${INPUT}_sorted.bam \
+-T tmp \
+-@ ${NP} \
+${INPUT}.sam
+```
+
+Step 4. Remove/mark PCR duplicates using [Picard](https://broadinstitute.github.io/picard/).
+
+```bash
+java -jar picard.jar \
+MarkDuplicates \
+INPUT=${MOD}_sorted.bam \
+OUTPUT=${MOD}_clean.bam \
+METRICS_FILE=${MOD}_METRICS_FILE.txt \
+REMOVE_DUPLICATES=true \
+VALIDATION_STRINGENCY=LENIENT
+
+java -jar picard.jar \
+MarkDuplicates \
+INPUT=${INPUT}_sorted.bam \
+OUTPUT=${INPUT}_clean.bam \
+METRICS_FILE=${INPUT}_METRICS_FILE.txt \
+REMOVE_DUPLICATES=true \
+VALIDATION_STRINGENCY=LENIENT
+```
+
+Step 5. Convert bam to bed using [bedtools](https://bedtools.readthedocs.io/en/latest/).
+
+```bash
+bedtools bamtobed \
+-i ${MOD}_clean.bam \
+> ${MOD}.bed
+
+bedtools bamtobed \
+-i ${INPUT}_clean.bam \
+> ${INPUT}.bed
+```
+
+Step 6. Call peaks using [macs2](https://github.com/taoliu/MACS)
+
+```bash
+macs2 callpeak \
+-t ${MOD}.bed \
+-c ${INPUT}.bed \
+-g 2e8 \
+--keep-dup all \
+-n ${MOD} \
+--broad
+```
+
+## Pre-processing short reads
+[Trimmomatic](http://www.usadellab.org/cms/index.php?page=trimmomatic) performs a variety of useful trimming tasks for Illumina paired-end (PE) and single ended (SE) data. It is always a good idea to clean-up gDNA-seq and RNA-seq prior to mapping.
+
+PE:
+
+```bash
+NP="" #number of processors
+FASTQ="" #basename of fastq file; i.e., string before [_1|_2].fastq|[_1|_2].fq
+PATH="" #path to adapter and other Illumina-specific sequences
+#other parameters are kept as default
+
+java -jar trimmomatic-0.36.jar PE \
+-phred33 \
+-threads ${NP} \
+-trimlog ${FASTQ}_trimmomatic.log \
+${FASTQ}_1.fastq \
+${FASTQ}_2.fastq \
+${FASTQ}_1_P.fastq \
+${FASTQ}_1_U.fastq \
+${FASTQ}_2_P.fastq \
+${FASTQ}_2_U.fastq \
+ILLUMINACLIP:${PATH}/TruSeq2-PE.fa:2:30:10 \
+LEADING:3 \
+TRAILING:3 \
+SLIDINGWINDOW:4:15 \
+MINLEN:36
+```
+
+SE:
+
+```bash
+NP="" #number of processors
+FASTQ="" #basename of fastq file; i.e., string before .fastq|.fq
+PATH="" #path to adapter and other Illumina-specific sequences
+#other parameters are kept as default
+
+java -jar trimmomatic-0.36.jar SE \
+-phred33 \
+-threads ${NP} \
+-trimlog ${FASTQ}_trimmomatic.log \
+${FASTQ}.fastq \
+${FASTQ}_T.fastq \
+ILLUMINACLIP:${PATH}/TruSeq2-SE.fa:2:30:10 \
+LEADING:3 \
+TRAILING:3 \
+SLIDINGWINDOW:4:15 \
+MINLEN:36
+```
 
 ## RNA-seq (mRNA)
 A popular toolset used for analyzing RNA-seq data is the tuxedo suite, which consists of [TopHat](https://ccb.jhu.edu/software/tophat/index.shtml) and [Cufflinks](http://cole-trapnell-lab.github.io/cufflinks/). The suite provided a start to finish pipeline that allowed users to map reads, assemble transcripts, and perform differential expression analyses. A newer "tuxedo suite" has been developed and is made up of three tools: `HISAT`, `StringTie`, and `Ballgown`. [Pertea et al. (2016)](https://www.ncbi.nlm.nih.gov/pubmed/27560171) provides a summary of the new suite as well as a tutorial.
@@ -11,7 +167,7 @@ SAMPLE="" #identifier associated with fastq
 SPECIES="" #species
 GFF="" #gff3 name
 REF="" #genome reference fasta file
-PREFIX="" #basename of the index files to write
+INDEX="" #basename of the index files to write
 NP="" #number of processors
 FASTQ="" #name of fastq file
 
@@ -23,13 +179,13 @@ hisat2-build \
 --ss ${SPECIES}.ss \
 --exon ${SPECIES}.exon \
 ${REF} \
-${PREFIX}
+${INDEX}
 
 mkdir ${SAMPLE}_map
 
 hisat2 -p ${NP} \
 --dta \
--x ${PREFIX} \
+-x ${INDEX} \
 -U ${FASTQ} \
 -S ${SAMPLE}_map/${SAMPLE}.sam
 
@@ -65,17 +221,19 @@ WGBS allows the interrogation of the methylation status at a single cytosine ([C
 While there are many programs available to map WGBS reads ([Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/), [BSseeker2](https://github.com/BSSeeker/BSseeker2), [Methylkit](https://bioconductor.org/packages/release/bioc/html/methylKit.html), etc.), my preferred program is [methylpy](https://github.com/yupenghe/methylpy). `methylpy` is versatile and offers a number of statistical and analytical advantages over other programs. Specifically, discretely binning sites as methylated or unmethylated using binomial statistics and a Differentially Methylated Region (DMR) finder.
 
 Step 1. Index your reference genome assembly:
+
 ```bash
 REF="" #genome reference fasta file
-PREFIX="" #basename of the index files to write
+INDEX="" #basename of the index files to write
 
 methylpy build-reference \
 --input-files ${REF} \
---output-prefix ${PREFIX} \
+--output-prefix ${INDEX} \
 --bowtie2 True
 ```
 
 Step 2. Map reads and generate an allc file with output from a binomial test:
+
 ```bash
 FASTQ="" #WGBS/methylC-seq fastq file
 SAMPLE="" #identifier associated with fastq
@@ -135,5 +293,3 @@ methylpy DMRfind \
 --num-procs ${NP} \
 --output-prefix ${OUT}
 ```
-
-Done.
