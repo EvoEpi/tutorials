@@ -155,12 +155,12 @@ bamtools merge \
 
 Step 5. We will be using [freebayes](https://github.com/ekg/freebayes/blob/master/README.md) to call Single Nucleotide Polymorphisms (SNPs). Specifically, `freebayes-parallel` to speed up SNP calling by breaking our reference genome assembly into regions. The default parameters of `freebayes` are very liberal, so I recommend increasing their stringency. Below are parameters I typically change (->) from their default value, but you should choose values that best suits your data:
 
--C Require at least this count of observations supporting an alternate allele within a single individual in order to evaluate the position. default: 2->5
--3 Require at least this sum of quality of observations supporting an alternate allele within a single individual in order to evaluate the position. default: 0->300
--p Sets the default ploidy for the analysis to N. default: 2->2
--m Exclude alignments from analysis if they have a mapping quality less than Q. default: 1->30
--q Exclude alleles from analysis if their supporting base quality is less than Q. default: 0->30
--n Evaluate only the best N SNP alleles, ranked by sum of supporting quality scores. (Set to 0 to use all; default: all)->4
+__-C__ Require at least this count of observations supporting an alternate allele within a single individual in order to evaluate the position. default: 2->5  
+__-3__ Require at least this sum of quality of observations supporting an alternate allele within a single individual in order to evaluate the position. default: 0->300  
+__-p__ Sets the default ploidy for the analysis to N. default: 2->2  
+__-m__ Exclude alignments from analysis if they have a mapping quality less than Q. default: 1->30  
+__-q__ Exclude alleles from analysis if their supporting base quality is less than Q. default: 0->30  
+__-n__ Evaluate only the best N SNP alleles, ranked by sum of supporting quality scores. (Set to 0 to use all; default: all)->4   
 
 ```bash
 REF="" #reference fasta file
