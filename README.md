@@ -1,8 +1,8 @@
 # tutorials
-Example workflows of various programs ranging from processing ChIP-seq, gDNA-seq, RNA-seq (mRNA and sRNA), and WGBS data, and estimating gene and species phylogenies, testing for selection, and more.
+Example workflows of various programs ranging from processing ChIP-seq, DNA-seq, RNA-seq (mRNA and sRNA), and WGBS data, and estimating gene and species phylogenies, testing for selection, and more.
 
 ## ChIP-seq
-ChIP-sequencing, also known as ChIP-seq, is a method used to analyze protein interactions with DNA. ChIP-seq combines chromatin immunoprecipitation (ChIP) with DNA sequencing to identify the binding sites of DNA-associated proteins. An important part of designing ChIP-Seq experiments is determining what controls to use for the experiment. Chromatin inputs serve as a good control for bias in chromatin fragmentation and variations in sequencing efficiency; additionally, they provide greater and more evenly distributed coverage of the genome ([Kidder et al. 2011](https://www.ncbi.nlm.nih.gov/pubmed/21934668)).
+ChIP-sequencing, also known as ChIP-seq, is a method used to analyze protein interactions with DNA. ChIP-seq combines chromatin immunoprecipitation (ChIP) with DNA sequencing to identify the binding sites of DNA-associated proteins. An important part of designing ChIP-Seq experiments is determining what controls to use for the experiment. Chromatin inputs serve as a good control for bias in chromatin fragmentation and variations in sequencing efficiency; additionally, they provide greater and more evenly distributed coverage of the genome ([Kidder et al. 2011](https://www.ncbi.nlm.nih.gov/pubmed/21934668)). Hence, the processing of ChIP-seq involves cleaning and mapping reads from a DNA interaction of interest to a control, and identifying binding sites (peaks) relative to a control.
 
 Step 1. Clean-up reads using `Trimmomatic`. See `Trimmomatic` example below.
 
@@ -96,7 +96,7 @@ bedtools bamtobed \
 > ${INPUT}.bed
 ```
 
-Step 6. Call peaks using [macs2](https://github.com/taoliu/MACS)
+Step 6. Call peaks using [macs2](https://github.com/taoliu/MACS).
 
 ```bash
 macs2 callpeak \
@@ -106,6 +106,89 @@ macs2 callpeak \
 --keep-dup all \
 -n ${MOD} \
 --broad
+```
+
+## DNA-seq
+Next-generation sequencing (NGS) methods provide cheap and reliable large-scale DNA sequencing. They are used extensively for _de novo_ sequencing, for disease mapping, and in population genetic studies. The latter two applications typically involve aligning short sequencing reads from one or more individuals to a reference genome to identify variable sites or Single Nucleotide Polymorphisms (SNPs). The frequency of variants within a population can provide information regarding the genetic basis of diseases, loci under natural selection, and loci segregating in a population. In this example I go over mapping short-read re-sequencing data to a reference genome assembly followed by SNP calling.
+
+Step 1. Index genome using [bwa](http://bio-bwa.sourceforge.net/).
+
+```bash
+REF="" #reference fasta file
+
+bwa index ${REF}
+```
+
+Step 2. Clean-up reads using `Trimmomatic`. See `Trimmomatic` example below.
+
+Step 3. Map reads using `bwa`. In this example we will be merging multiple bam files downstream, so we beed to add a read group header to distinguish alignments in the merged bam. We will pipe the output [SAMtools](http://www.htslib.org/) to create a sorted bam file. In this example we are mapping paired-end data.
+
+```bash
+NP="" #number of processors/threads
+SAMPLE="" #unique identifier for sample
+REF="" #reference fasta file
+R1="" #read 1 fastq file
+R2="" #read 2 fastq file
+
+bwa mem \
+-t ${NP} \
+-R \"@RG\tID:${SAMPLE}\tSM:${SAMPLE}\" \
+${REF} \
+${R1} \
+${R2} | \
+samtools sort \
+-o ${SAMPLE}_aln-pe_sorted.bam \
+-@ ${NP} \
+-
+```
+
+Step 4. Merge bam files using [bamtools](https://github.com/pezmaster31/bamtools).
+
+```bash
+BAM="" #space-separated list of bam files
+OUT="" #name of merged bam file ending in .bam
+
+bamtools merge \
+-in ${BAM} \
+-out ${OUT}
+```
+
+Step 5. We will be using [freebayes](https://github.com/ekg/freebayes/blob/master/README.md) to call Single Nucleotide Polymorphisms (SNPs). Specifically, `freebayes-parallel` to speed up SNP calling by breaking our reference genome assembly into regions. The default parameters of `freebayes` are very liberal, so I recommend increasing their stringency. Below are parameters I typically change (->) from their default value, but you should choose values that best suits your data:
+
+-C Require at least this count of observations supporting an alternate allele within a single individual in order to evaluate the position. default: 2->5
+-3 Require at least this sum of quality of observations supporting an alternate allele within a single individual in order to evaluate the position. default: 0->300
+-p Sets the default ploidy for the analysis to N. default: 2->2
+-m Exclude alignments from analysis if they have a mapping quality less than Q. default: 1->30
+-q Exclude alleles from analysis if their supporting base quality is less than Q. default: 0->30
+-n Evaluate only the best N SNP alleles, ranked by sum of supporting quality scores. (Set to 0 to use all; default: all)->4
+
+```bash
+REF="" #reference fasta file
+REGIONS="" #name of regions outfile
+NP="" #number of processors
+BAM="" #merged bam file
+OUT="" #name of vcf outfile
+
+samtools faidx \
+${REF}
+
+fasta_generate_regions.py \
+${REF}.fai \
+100000 > \
+${REGIONS}
+
+freebayes-parallel \
+${REGIONS} \
+${NP} \
+-f ${REF} \
+-C 5 \
+-3 300 \
+-p 2 \
+-m 30 \
+-q 30 \
+-n 4 \
+${BAM} \
+> ${OUT}
 ```
 
 ## Pre-processing short reads
@@ -160,7 +243,7 @@ MINLEN:36
 ## RNA-seq (mRNA)
 A popular toolset used for analyzing RNA-seq data is the tuxedo suite, which consists of [TopHat](https://ccb.jhu.edu/software/tophat/index.shtml) and [Cufflinks](http://cole-trapnell-lab.github.io/cufflinks/). The suite provided a start to finish pipeline that allowed users to map reads, assemble transcripts, and perform differential expression analyses. A newer "tuxedo suite" has been developed and is made up of three tools: `HISAT`, `StringTie`, and `Ballgown`. [Pertea et al. (2016)](https://www.ncbi.nlm.nih.gov/pubmed/27560171) provides a summary of the new suite as well as a tutorial.
 
-Step 1. Mapping. Mapping is performed using `HISAT2` and usually the first step, prior to mapping, is to create an index of the reference genome. Caution: This step takes a lot of memory. _If you use --snp, --ss, and/or --exon, [hisat2-build](https://ccb.jhu.edu/software/hisat2/manual.shtml) will need about **200GB RAM** for the **human genome** size as index building involves a graph construction. Otherwise, you will be able to build an index on your desktop with 8GB RAM_.
+Step 1. Mapping is performed using `HISAT2` and usually the first step, prior to mapping, is to create an index of the reference genome. Caution: This step takes a lot of memory. _If you use --snp, --ss, and/or --exon, [hisat2-build](https://ccb.jhu.edu/software/hisat2/manual.shtml) will need about **200GB RAM** for the **human genome** size as index building involves a graph construction. Otherwise, you will be able to build an index on your desktop with 8GB RAM_.
 
 ```bash
 SAMPLE="" #identifier associated with fastq
@@ -197,7 +280,7 @@ ${SAMPLE}_map/${SAMPLE}.sam
 rm ${SAMPLE}_map/*.sam
 ```
 
-Step 2. Assembly. Now we need to assemble the mapped reads into transcripts. `StringTie` can assemble transcripts with or without annotation. With annotation:
+Step 2. Now we need to assemble the mapped reads into transcripts. `StringTie` can assemble transcripts with or without annotation. With annotation:
 
 ```bash
 SAMPLE="" #identifier associated with fastq
@@ -220,7 +303,7 @@ WGBS allows the interrogation of the methylation status at a single cytosine ([C
 
 While there are many programs available to map WGBS reads ([Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/), [BSseeker2](https://github.com/BSSeeker/BSseeker2), [Methylkit](https://bioconductor.org/packages/release/bioc/html/methylKit.html), etc.), my preferred program is [methylpy](https://github.com/yupenghe/methylpy). `methylpy` is versatile and offers a number of statistical and analytical advantages over other programs. Specifically, discretely binning sites as methylated or unmethylated using binomial statistics and a Differentially Methylated Region (DMR) finder.
 
-Step 1. Index your reference genome assembly:
+Step 1. Index your reference genome assembly.
 
 ```bash
 REF="" #genome reference fasta file
@@ -232,7 +315,7 @@ methylpy build-reference \
 --bowtie2 True
 ```
 
-Step 2. Map reads and generate an allc file with output from a binomial test:
+Step 2. Map reads and generate an allc file with output from a binomial test.
 
 ```bash
 FASTQ="" #WGBS/methylC-seq fastq file
