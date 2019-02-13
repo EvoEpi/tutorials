@@ -111,7 +111,7 @@ macs2 callpeak \
 ## DNA-seq
 Next-generation sequencing (NGS) methods provide cheap and reliable large-scale DNA sequencing. They are used extensively for _de novo_ sequencing, for disease mapping, and in population genetic studies.
 
-__Chromosome conformation capture__. Under construction.
+__Chromosome conformation capture__. Chromosome conformation capture techniques are a set of molecular biology [methods](https://en.wikipedia.org/wiki/Chromosome_conformation_capture) used to analyze the spatial organization of chromatin in a cell. HiC, is an extension of 3C (quantifies interactions between a single pair of genomic loci) that is capable of identifying long range interactions in an unbiased, genome-wide fashion.
 
 [juicer](https://github.com/aidenlab/juicer) is a platform for analyzing kilobase resolution HiC data. `juicer` is kind of a pain at times because it requires specific locations of the fastq and genome fasta files (i.e., in fastq/ and genome/ directories, respectively). But, hey, it works and is able to get you a chromosome-level assembly down-the-line.
 
@@ -159,14 +159,18 @@ bwa index ${REF}
 
 Step 4. Map HiC reads using `juicer`.
 
--d [topDir] is the top level directory
+__-d__ path to the top level directory  
+__-s__ restriction enzyme  
+__-z__ path for reference sequence file, bwa index files must be in same directory  
+__-y__ path for restriction site file  
+__-t__ threads  
 
 ```bash
 GENOME="" #genome identifier; e.g., myGenome_v1.0
-TOP=""
+TOP="" #path of top directory
 RE="" #restriction enzyme name; e.g., MboI
-DIR=""
-NP=""
+DIR="" #path to directory one above genome/
+NP="" #number of processors
 
 juicer.sh \
 -g ${GENOME} \
