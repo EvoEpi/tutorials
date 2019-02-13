@@ -111,7 +111,7 @@ macs2 callpeak \
 ## DNA-seq
 Next-generation sequencing (NGS) methods provide cheap and reliable large-scale DNA sequencing. They are used extensively for _de novo_ sequencing, for disease mapping, and in population genetic studies.
 
-__Chromosome conformation capture__. <Under construction>.
+__Chromosome conformation capture__. Under construction.
 
 [juicer](https://github.com/aidenlab/juicer) is a platform for analyzing kilobase resolution HiC data. `juicer` is kind of a pain at times because it requires specific locations of the fastq and genome fasta files (i.e., in fastq/ and genome/ directories, respectively). But, hey, it works and is able to get you a chromosome-level assembly down-the-line.
 
