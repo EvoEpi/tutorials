@@ -109,7 +109,76 @@ macs2 callpeak \
 ```
 
 ## DNA-seq
-Next-generation sequencing (NGS) methods provide cheap and reliable large-scale DNA sequencing. They are used extensively for _de novo_ sequencing, for disease mapping, and in population genetic studies. The latter two applications typically involve aligning short sequencing reads from one or more individuals to a reference genome to identify variable sites or Single Nucleotide Polymorphisms (SNPs). The frequency of variants within a population can provide information regarding the genetic basis of diseases, loci under natural selection, and loci segregating in a population. In this example I go over mapping short-read re-sequencing data to a reference genome assembly followed by SNP calling.
+Next-generation sequencing (NGS) methods provide cheap and reliable large-scale DNA sequencing. They are used extensively for _de novo_ sequencing, for disease mapping, and in population genetic studies.
+
+__Chromosome conformation capture__. <Under construction>.
+
+[juicer](https://github.com/aidenlab/juicer) is a platform for analyzing kilobase resolution HiC data. `juicer` is kind of a pain at times because it requires specific locations of the fastq and genome fasta files (i.e., in fastq/ and genome/ directories, respectively). But, hey, it works and is able to get you a chromosome-level assembly down-the-line.
+
+Step 1. Trim reads using [HOMER](http://homer.ucsd.edu/homer/ngs/homerTools.html).
+
+__-3__ trim adapter sequence  
+__-matchStart__ don't start searching for adapter until this position, default: 0  
+__-min__ remove sequence that are shorter than this after trimming  
+
+```bash
+RES="" #restriction enzyme sequence
+R1="" #read 1 fastq
+R2="" #read 2 fastq
+
+homerTools trim -3 ${RES} -matchStart 20 -min 20 ${R1}.fastq > ${R1}_T.fastq
+homerTools trim -3 ${RES} -matchStart 20 -min 20 ${R2}.fastq > ${R2}_T.fastq
+
+#nuance of juicer
+mkdir fastq
+mv ${R1}_T.fastq ${R2}_T.fastq fastq/
+```
+
+Step 2. Prepare genome for mapping with `juicer`. This involves generating a file containing a huge list of RE cut site positions, a chromosome sizes file, and indexing the genome using `bwa`.
+
+```bash
+RE="" #restriction enzyme name; e.g., MboI
+GENOME="" #genome identifier; e.g., myGenome_v1.0
+REF="" #reference fasta file; e.g., myGenome_v1.0.fasta
+#pay attention to the string for GENOME and the REF fasta file name
+
+#nuance of juicer
+mkdir genome
+cp ${REF} genome/
+cd genome/
+
+python2 generate_site_positions.py \
+${RE} \
+${GENOME} \
+${REF}
+
+awk 'BEGIN{OFS="\t"}{print $1, $NF}' ${GENOME}_${RE}.txt > ${GENOME}.chrom.sizes
+
+bwa index ${REF}
+```
+
+Step 4. Map HiC reads using `juicer`.
+
+-d [topDir] is the top level directory
+
+```bash
+GENOME="" #genome identifier; e.g., myGenome_v1.0
+TOP=""
+RE="" #restriction enzyme name; e.g., MboI
+DIR=""
+NP=""
+
+juicer.sh \
+-g ${GENOME} \
+-d ${TOP} \
+-s ${RE} \
+-z ${DIR}/${REF} \
+-p ${DIR}/${GENOME}.chrom.sizes \
+-y ${DIR}/${GENOME}_${RE}.txt \
+-t ${NP}
+```
+
+__Single Nucleotide Polymorphisms (SNP) calling__. Disease mapping and population genetic studies typically involve aligning short sequencing reads from one or more individuals to a reference genome to identify variable sites or Single Nucleotide Polymorphisms (SNPs). The frequency of variants within a population can provide information regarding the genetic basis of diseases, loci under natural selection, and loci segregating in a population. In this example I go over mapping short-read re-sequencing data to a reference genome assembly followed by SNP calling.
 
 Step 1. Index genome using [bwa](http://bio-bwa.sourceforge.net/).
 
