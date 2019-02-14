@@ -8,6 +8,14 @@ Step 1. Clean-up reads using `Trimmomatic`. See `Trimmomatic` example below.
 
 Step 2. Map reads using [bowtie](http://bowtie-bio.sourceforge.net/index.shtml).
 
+__-S__ Print alignments in SAM format  
+__-t__ Print the amount of wall-clock time taken by each phase  
+__-p__ Launch \<int\> parallel search threads (default: 1)  
+__-v__ Print verbose output (for debugging)  
+__--best__ Make Bowtie guarantee that reported singleton alignments are "best" in terms of stratum and in terms of the quality values at the mismatched position(s)  
+__--strata__ If many valid alignments exist and are reportable and they fall into more than one alignment "stratum", report only those alignments that fall into the best stratum  
+__-m__ Suppress all alignments for a particular read or pair if more than \<int\> reportable alignments exist for it  
+
 ```bash
 REF="" #genome reference fasta file
 INDEX="" #basename of the index files to write
@@ -180,6 +188,16 @@ juicer.sh \
 -p ${DIR}/${GENOME}.chrom.sizes \
 -y ${DIR}/${GENOME}_${RE}.txt \
 -t ${NP}
+```
+
+The `.hic` file in directory `aligned/` produced by `juicer` can be loaded into [Juicebox](https://github.com/aidenlab/Juicebox/wiki) for visualization.
+
+The `merged_nodups.txt` in directory `aligned/` along with the reference fasta file are used by [3D-DNA](https://github.com/theaidenlab/3d-dna) for genome assembling. `3D-DNA` pipeline consists of one bash wrapper script `run-asm-pipeline.sh` that calls individual modules to assemble a genome. Running with default parameters, and HiC sequencing depth of ~20X, I went from a genome assembly of 5745 scaffolds with N50=4.9Mb to 5505 scaffolds with N50=707Mb.
+
+```bash
+REF="" #reference fasta file HiC reads are mapped to
+
+run-asm-pipeline.sh genome/${REF} aligned/merged_nodups.txt
 ```
 
 __Single Nucleotide Polymorphisms (SNP) calling__. Disease mapping and population genetic studies typically involve aligning short sequencing reads from one or more individuals to a reference genome to identify variable sites or Single Nucleotide Polymorphisms (SNPs). The frequency of variants within a population can provide information regarding the genetic basis of diseases, loci under natural selection, and loci segregating in a population. In this example I go over mapping short-read re-sequencing data to a reference genome assembly followed by SNP calling.
