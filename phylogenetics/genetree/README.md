@@ -1,4 +1,4 @@
-# Phylogenetics
+# Gene tree
 
 [RAxML (Randomized Axelerated Maximum Likelihood)](https://cme.h-its.org/exelixis/web/software/raxml/index.html) is a program for sequential and parallel Maximum Likelihood (ML) based inference of large phylogenetic trees. It can also be used for postanalyses of sets of phylogenetic trees, analyses of alignments and, evolutionary placement of short reads.
 
