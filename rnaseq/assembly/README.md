@@ -10,7 +10,7 @@
 
 __--seqType__ Type of reads (fa or fq)  
 __--max_memory__ Suggested max memory to use by Trinity where limiting can be enabled. (jellyfish, sorting, etc) provided in Gb of RAM  
-__--CPU__ Number of CPUs to use
+__--CPU__ Number of CPUs to use  
 __--no_version_check__ Don't run a network check to determine if software updates are available  
 __--full_cleanup__ Only retain the Trinity fasta file  
 __--normalize_reads__ Run in silico normalization of reads  
