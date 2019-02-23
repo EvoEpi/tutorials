@@ -1,64 +1,6 @@
 # tutorials
 Example workflows of various programs ranging from processing ChIP-seq, DNA-seq, RNA-seq (mRNA and sRNA), and WGBS data, and estimating gene and species phylogenies, testing for selection, and more.
 
-## RNA-seq (mRNA)
-A popular toolset used for analyzing RNA-seq data is the tuxedo suite, which consists of [TopHat](https://ccb.jhu.edu/software/tophat/index.shtml) and [Cufflinks](http://cole-trapnell-lab.github.io/cufflinks/). The suite provided a start to finish pipeline that allowed users to map reads, assemble transcripts, and perform differential expression analyses. A newer "tuxedo suite" has been developed and is made up of three tools: `HISAT`, `StringTie`, and `Ballgown`. [Pertea et al. (2016)](https://www.ncbi.nlm.nih.gov/pubmed/27560171) provides a summary of the new suite as well as a tutorial.
-
-Step 1. Mapping is performed using `HISAT2` and usually the first step, prior to mapping, is to create an index of the reference genome. Caution: This step takes a lot of memory. _If you use --snp, --ss, and/or --exon, [hisat2-build](https://ccb.jhu.edu/software/hisat2/manual.shtml) will need about **200GB RAM** for the **human genome** size as index building involves a graph construction. Otherwise, you will be able to build an index on your desktop with 8GB RAM_.
-
-```bash
-SAMPLE="" #identifier associated with fastq
-SPECIES="" #species
-GFF="" #gff3 name
-REF="" #genome reference fasta file
-INDEX="" #basename of the index files to write
-NP="" #number of processors
-FASTQ="" #name of fastq file
-
-gffread ${GFF} -T -o ${SPECIES}.gtf
-python extract_splice_sites.py ${SPECIES}.gtf > ${SPECIES}.ss
-python extract_exons.py ${SPECIES}.gtf > ${SPECIES}.exon
-hisat2-build \
--p ${NP} \
---ss ${SPECIES}.ss \
---exon ${SPECIES}.exon \
-${REF} \
-${INDEX}
-
-mkdir ${SAMPLE}_map
-
-hisat2 -p ${NP} \
---dta \
--x ${INDEX} \
--U ${FASTQ} \
--S ${SAMPLE}_map/${SAMPLE}.sam
-
-samtools sort \
--@ ${NP} \
--o ${SAMPLE}_map/${SAMPLE}.bam \
-${SAMPLE}_map/${SAMPLE}.sam
-
-rm ${SAMPLE}_map/*.sam
-```
-
-Step 2. Now we need to assemble the mapped reads into transcripts. `StringTie` can assemble transcripts with or without annotation. With annotation:
-
-```bash
-SAMPLE="" #identifier associated with fastq
-SPECIES="" #species
-NP="" #number of processors
-
-mkdir ${SAMPLE}_assembly
-
-stringtie ${SAMPLE}_map/${SAMPLE}.bam \
--l ${SAMPLE} \
--p ${NP} \
--G ${SAMPLE}.gtf \
--o ${SAMPLE}_assembly/${SPECIES}.gtf \
--e \
--A ${SAMPLE}_abundance.out
-```
-
 ## WGBS
 WGBS allows the interrogation of the methylation status at a single cytosine ([Cokus et al. 2008](https://www.ncbi.nlm.nih.gov/pubmed/18278030); [Lister et al. 2008](https://www.ncbi.nlm.nih.gov/pubmed/18423832)). This process uses sodium bisulfite to convert unmethylated cytosine to uracil and ultimately thymine via PCR ([Clark et al. 1994](https://www.ncbi.nlm.nih.gov/pubmed/8065911)). These can then be detected by sequencing the converted product and mapping the data to a reference genome. Reads that contain a thymine where the reference genome contains a cytosine indicate that the reference cytosine is unmethylated, whereas reads that still retain a cytosine indicate that the reference cytosine is methylated.
 
