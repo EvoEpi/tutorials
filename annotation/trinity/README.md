@@ -35,7 +35,7 @@ __Step 1.2__. `Trinity` _genome-guided_ assembly.
 __-p__ Number of threads  
 __--dta__ Report alignments tailored for transcript assemblers including `StringTie`  
 __-x__ The basename of the index for the reference genome  
-__-1__ Comma-separated list of files containing mate 1s (Alternative, -U, comma-separated list of files containing unpaired reads)  
+__-1__ Comma-separated list of files containing mate 1s (Alternatively, -U, comma-separated list of files containing unpaired reads)  
 __-2__ Comma-separated list of files containing mate 2s  
 __-S__ Out SAM file
 
