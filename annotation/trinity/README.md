@@ -1,6 +1,6 @@
-# Step 1. Generate `Trinity` _de novo_ and _genome-guided_ assemblies
+# Step 1. Generate [Trinity](https://github.com/trinityrnaseq/trinityrnaseq/wiki) _de novo_ and _genome-guided_ assemblies
 
-__Step 1.1__. [Trinity](https://github.com/trinityrnaseq/trinityrnaseq/wiki) _de novo_ assembly.
+__Step 1.1__. `Trinity` _de novo_ assembly.
 
 __--seqType__ Type of reads (fa or fq)  
 __--max_memory__ Suggested max memory to use by Trinity where limiting can be enabled. (jellyfish, sorting, etc) provided in Gb of RAM  
