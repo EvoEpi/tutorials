@@ -1,8 +1,22 @@
 # Step 3. [MAKER](http://www.yandell-lab.org/software/maker.html).
 
-__Step 3.1__. _de novo_ repeat identification using `RepeatModeler` from [RepeatMasker](http://www.repeatmasker.org/).
+__Software prerequisites__
+
+1. [RepeatModeler](http://www.repeatmasker.org/RepeatModeler/) and [RepeatMasker](http://www.repeatmasker.org/) with all dependencies and [Repbase](https://www.girinst.org/repbase/).  
+2. `MAKER`.  
+3. [AUGUSTUS](http://bioinf.uni-greifswald.de/augustus/).  
+4. [BUSCO](https://busco.ezlab.org/).  
+5. [SNAP](https://github.com/KorfLab/SNAP).  
+6. [BEDtools](https://bedtools.readthedocs.io/en/latest/).  
+
+__Step 3.1__. _de novo_ repeat identification using `RepeatModeler` from `RepeatMasker`.
 
 ```bash
+SAMPLE="" #sample name
+GENOME="" #genome assembly fasta file
+CPU="" #number of CPUs
+LOG="" #log filename
+
 BuildDatabase \
 -name ${SAMPLE} \
 -engine ncbi \
@@ -18,9 +32,15 @@ tee ${LOG}
 
 __Step 3.2__. Full repeat annotation.
 
-Identify repeats using `RepeatMasker` and the appropriate library from [Repbase](https://www.girinst.org/repbase/).
+Identify repeats using `RepeatMasker` and the appropriate library from `Repbase`.
 
 ```bash
+REPBASE="" #name of repbase library
+CPU="" #number of CPUs
+LIB="" #repbase fasta file
+ABBR="" #species abbreviation, typically first three letters of genus and species
+GENOME="" #genome assembly fasta file
+
 mkdir ${REPBASE}_mask
 RepeatMasker \
 -pa ${CPU} \
@@ -30,34 +50,35 @@ RepeatMasker \
 ${GENOME}
 ```
 
-Multiple annotations can be performed using different libraries. It is a good idea to rename the outputs after each round of repeat annotation so they are more representative of what they contain.
+Multiple repeat annotations can be performed using different libraries. It is a good idea to rename the outputs after each round of repeat annotation so they are more representative of what they contain.
 
-Results from each round of annotation must be analyzed together to produce the final repeat annotation
+Results from each round of annotation must be analyzed together to produce the final/full repeat annotation
 
 ```bash
 mkdir full_mask
-cat ${REPBASE}_mask/*.cat rep_mask1/*.cat rep_mask2/*.cat > full_mask/${INDEX}.full_mask.cat
+gunzip ${REPBASE}_mask/*.cat.gz rep_mask1/*.cat.gz rep_mask2/*.cat.gz
+cat ${REPBASE}_mask/*.cat rep_mask1/*.cat rep_mask2/*.cat > full_mask/${GENOME}.full_mask.cat
 cd full_mask
 ProcessRepeats \
 -species ${REPBASE} \
-full_mask/${INDEX}.full_mask.cat
+full_mask/${GENOME}.full_mask.cat
 ```
 
 In order to feed these repeats into `MAKER` properly, we must separate out the complex repeats.
 
 ```bash
 rmOutToGFF3.pl \
-full_mask/${INDEX}.full_mask.out \
-> full_mask/${INDEX}.full_mask.out.gff3
+full_mask/${GENOME}.full_mask.out \
+> full_mask/${GENOME}.full_mask.out.gff3
 
 #isolate complex repeats
-grep -v -e "Satellite" -e ")n" -e "-rich" ${INDEX}.full_mask.gff3 \
-> ${INDEX}.full_mask.complex.gff3
+grep -v -e "Satellite" -e ")n" -e "-rich" ${GENOME}.full_mask.gff3 \
+> ${GENOME}.full_mask.complex.gff3
 
 #reformat to work with MAKER
-cat ${INDEX}.full_mask.complex.gff3 | \
+cat ${GENOME}.full_mask.complex.gff3 | \
 perl -ane '$id; if(!/^\#/){@F = split(/\t/, $_); chomp $F[-1];$id++; $F[-1] .= "\;ID=$id"; $_ = join("\t", @F)."\n"} print $_' \
-> ${INDEX}.full_mask.complex.reformat.gff3
+> ${GENOME}.full_mask.complex.reformat.gff3
 ```
 
 __Step 3.3__. Initial `MAKER` analysis.
@@ -125,3 +146,34 @@ tries=2 #number of times to try a contig if there is a failure for some reason
 clean_try=0 #remove all data from previous run before retrying, 1 = yes, 0 = no
 clean_up=0 #removes theVoid directory with individual analysis files, 1 = yes, 0 = no
 ```
+
+Run `MAKER` using a bash script.
+
+```bash
+cat maker-round1.sh
+
+JOBID="" #job id
+CPU="" #number of CPUs
+ABBR="" #species abbreviation, typically first three letters of genus and species
+
+mkdir -p /tmp/lscratch/${JOBID}/tmp
+maker -cpus ${CPU} -base ${ABBR} -TMP /tmp/lscratch/${JOBID}/tmp maker_opts.ctl maker_bopts.ctl maker_exe.ctl
+```
+
+`MAKER` will be using [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download) to align transcripts and proteins to the genome, so this will take a very long time. Speed is a product of the resources you allow (more cores == shorter runtime) and the assembly quality (small, less contiguous scaffolds == longer runtime or long, more contiguous scaffolds == longer runtime). Additionally, the first rounf of `MAKER` takes the longest. To speed-up `MAKER` use more cores or break the genome assembly fasta file into chunks, essentially parallelizing `MAKER`.
+
+After `MAKER` is done running we assemble together the GFF and FASTA outputs.
+
+```bash
+cd ${ABBR}.maker.output
+gff3_merge -s -d ${ABBR}_master_datastore_index.log > ${ABBR}.all.maker.gff
+fasta_merge -d ${ABBR}_master_datastore_index.log
+# GFF w/o the sequences
+gff3_merge -n -s -d ${ABBR}_master_datastore_index.log > ${ABBR}.all.maker.noseq.gff
+```
+
+__Step 3.4__. Training gene prediction software.
+
+__SNAP__
+
+__AUGUSTUS__
