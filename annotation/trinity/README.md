@@ -46,7 +46,7 @@ __-o__ Output to FILE [stdout]
 `Trinity`:  
 __genome_guided_bam__ Provide path to coordinate-sorted bam file  
 __genome_guided_max_intron__ Maximum allowed intron length (also maximum fragment span on genome)  
-__max_memory__ Suggested max memory to use by Trinity where limiting can be enabled  
+__--max_memory__ Suggested max memory to use by Trinity where limiting can be enabled. (jellyfish, sorting, etc) provided in Gb of RAM  
 __CPU__ Number of CPUs to use
 
 ```bash
