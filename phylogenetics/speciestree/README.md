@@ -6,6 +6,8 @@ __Step 1__. Estimate gene trees using `RAxML`.
 
 Conserved, single-copy genes tend to work well for ultimately estimating a species tree. At least in flowering plants, there has been concerted effort to develop a universal probe set for several hundred conserved single-copy nuclear genes ([Johnson et al. 2018](https://www.ncbi.nlm.nih.gov/pubmed/30535394)).
 
+Although different gene trees will be estimated, the names associated with each sequence for each gene should be the same. This is required for downstream analysis using `ASTRAL`.
+
 __-f__ Select algorithm (a: rapid Bootstrap analysis and search for bestscoring ML tree in one program run)  
 __-x__ Specify an integer number (random seed) and turn on rapid bootstrapping  
 __-p__ Specify a random number seed for the parsimony inferences  
