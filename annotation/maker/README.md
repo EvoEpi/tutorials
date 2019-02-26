@@ -102,6 +102,35 @@ fasta_merge -d ${ABBR}_master_datastore_index.log
 gff3_merge -n -s -d ${ABBR}_master_datastore_index.log > ${ABBR}.all.maker.noseq.gff
 ```
 
+If the genome assembly fasta file was broken into, say five chromosomes, you will need to combine the log files before running `gff3_merge` and `fasta_merge`.
+
+```bash
+#multiple log files in each chromosome directory
+#chr1/${ABBR}.maker.output/${ABBR}_master_datastore_index.log
+#chr2/${ABBR}.maker.output/${ABBR}_master_datastore_index.log
+#chr3/${ABBR}.maker.output/${ABBR}_master_datastore_index.log
+#chr4/${ABBR}.maker.output/${ABBR}_master_datastore_index.log
+#chr5/${ABBR}.maker.output/${ABBR}_master_datastore_index.log
+
+#each log file follows the same basic format
+head chr1/${ABBR}.maker.output/${ABBR}_master_datastore_index.log
+chr1	${ABBR}_datastore/0E/D2/chr1/	STARTED
+chr1	${ABBR}_datastore/0E/D2/chr1/	FINISHED
+
+#concatenate log files to a temp.log file in directory about chr directories
+cat chr*/${ABBR}.maker.output/${ABBR}_master_datastore_index.log > \
+temp.log
+
+#change path and write to a new log file, and remove temp.log
+awk -F"\t" '{print $1 "\t" $1 "/" $2 "\t" $3}' temp.log > ${ABBR}_master_datastore_index.log
+rm temp.log
+
+#run gff3_merge and fasta_merge on concatenated log file
+gff3_merge -s -d ${ABBR}_master_datastore_index.log > ${ABBR}.all.maker.gff
+fasta_merge -d ${ABBR}_master_datastore_index.log
+gff3_merge -n -s -d ${ABBR}_master_datastore_index.log > ${ABBR}.all.maker.noseq.gff
+```
+
 __Step 4.2__. Training gene prediction software.
 
 __SNAP__
