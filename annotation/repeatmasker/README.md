@@ -1,4 +1,4 @@
-# Step 3. [RepeatMasker](http://www.repeatmasker.org/)
+# Step 3. Identifying repetitive content using [RepeatMasker](http://www.repeatmasker.org/)
 
 __Step 3.1__. _de novo_ repeat identification using `RepeatModeler` from `RepeatMasker`.
 
