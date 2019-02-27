@@ -1,6 +1,6 @@
 # Species tree estimation using [RAxML](https://cme.h-its.org/exelixis/web/software/raxml/index.html) and [ASTRAL](https://github.com/smirarab/ASTRAL)
 
-Many thanks to [Karolina Heyduk](https://karohey.wixsite.com/home) and [Shawn Thomas](https://jlmlab.wixsite.com/jlmlab/shawn-thomas) for sharing portions of their pipeline.
+Many thanks to [Karolina Heyduk](https://karohey.wixsite.com/home) and [Shawn Thomas](https://twitter.com/Shawn_K_T?lang=en) for sharing portions of their pipeline.
 
 __Step 1__. Estimate gene trees using `RAxML`.
 
@@ -47,13 +47,13 @@ realpath RAxML_bootstrap.* > boots.txt
 __Step 3__. Estimate a species tree using `ASTRAL`.
 
 __-i__ Concatenated bipartitions files  
-__-b__ Concatenated boostrap files  
+__-b__ Text file containing the paths for all of the bootstrap replicates
 __-r__ Number of bootstrap replicates to consider (needs to be less than number of bootstraps generated i.e. if 500 bootstraps generated in RAxML use 400 in ASTRAL  
 __-o__ Filename of output tree
 
 ```bash
 i="" #concatenated bipartitions files
-b="" #concatenated boostrap files
+b="" #boostrap file paths
 r="" #number of bootstrap replicates
 o="" #filename of output tree
 
