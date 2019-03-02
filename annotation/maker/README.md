@@ -122,7 +122,7 @@ cat chr*/${ABBR}.maker.output/${ABBR}_master_datastore_index.log > \
 temp.log
 
 #change path and write to a new log file, and remove temp.log
-awk -F"\t" '{print $1 "\t" $1 "/" $2 "\t" $3}' temp.log > ${ABBR}_master_datastore_index.log
+awk -F"\t" '{print $1 "\t" $1 "/${ABBR}.maker.output/" $2 "\t" $3}' temp.log > ${ABBR}_master_datastore_index.log
 rm temp.log
 
 #run gff3_merge and fasta_merge on concatenated log file
