@@ -1,5 +1,7 @@
 # Step 4. Genome annotation using [MAKER](http://www.yandell-lab.org/software/maker.html).
 
+A lot of the following tutorial was humbly taken from Daren Card's [MAKER tutorial](https://gist.github.com/darencard/bb1001ac1532dd4225b030cf0cd61ce2). I have included steps for breaking the genome assembly into separate contigs/scaffolds/chromosomes and how to carry out `MAKER` to three (3) rounds _ab initio_ gene prediction.
+
 __Software prerequisites__
 
 1. [RepeatModeler](http://www.repeatmasker.org/RepeatModeler/) and [RepeatMasker](http://www.repeatmasker.org/) with all dependencies and [Repbase](https://www.girinst.org/repbase/).  
