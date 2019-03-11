@@ -2,6 +2,10 @@
 
 ## Genome repositories
 
+__[1001 Genomes](https://1001genomes.org/).__ "_A catalog of Arabidopsis thaliana genetic variation._"
+
+__[Broad Institute](https://www.broadinstitute.org/data-software-and-tools).__
+
 __[CoGe](https://genomevolution.org/coge/).__ "_CoGe is a platform for performing Comparative Genomics research. It provides an open-ended network of interconnected tools to manage, analyze, and visualize next-gen data."_
 
 __[ENSEMBL](https://useast.ensembl.org/index.html).__ "_Ensembl is a genome browser for vertebrate genomes that supports research in comparative genomics, evolution, sequence variation and transcriptional regulation. Ensembl annotate genes, computes multiple alignments, predicts regulatory function and collects disease data. Ensembl tools include BLAST, BLAT, BioMart and the Variant Effect Predictor (VEP) for all supported species._"
@@ -12,9 +16,9 @@ __[i5k Workspace](https://i5k.nal.usda.gov/content/data-downloads).__ "_If you u
 
 __[NCBI - Genome](https://www.ncbi.nlm.nih.gov/genome/).__ "_This resource organizes information on genomes including sequences, maps, chromosomes, assemblies, and annotations._"
 
-__[Phytozome](https://phytozome.jgi.doe.gov/pz/portal.html).__ "_Phytozome, the Plant Comparative Genomics portal of the Department of Energy's Joint Genome Institute, provides JGI users and the broader plant science community a hub for accessing, visualizing and analyzing JGI-sequenced plant genomes, as well as selected genomes and datasets that have been sequenced elsewhere. As of release v12.1.6, Phytozome hosts 93 assembled and annotated genomes, from 82 Viridiplantae species._"
-
 __[Mycocosm](https://genome.jgi.doe.gov/mycocosm/home).__ Similar to Phytozome, but for fungi. Check if genome is publicly available ([green highlighted](https://genome.jgi.doe.gov/fungi/fungi.info.html))
+
+__[Phytozome](https://phytozome.jgi.doe.gov/pz/portal.html).__ "_Phytozome, the Plant Comparative Genomics portal of the Department of Energy's Joint Genome Institute, provides JGI users and the broader plant science community a hub for accessing, visualizing and analyzing JGI-sequenced plant genomes, as well as selected genomes and datasets that have been sequenced elsewhere. As of release v12.1.6, Phytozome hosts 93 assembled and annotated genomes, from 82 Viridiplantae species._"
 
 __[Vectorbase](https://www.vectorbase.org/).__ "_VectorBase is a National Institute of Allergy and Infectious Diseases (NIAID) Bioinformatics Resource Center (BRC) providing genomic, phenotypic and population-centric data to the scientific community for invertebrate vectors of human pathogens._"
 
