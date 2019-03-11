@@ -2,19 +2,21 @@
 
 ## Genome repositories
 
-__[CoGe](https://genomevolution.org/coge/).__ *CoGe is a platform for performing Comparative Genomics research. It provides an open-ended network of interconnected tools to manage, analyze, and visualize next-gen data.*
+__[CoGe](https://genomevolution.org/coge/).__ "_CoGe is a platform for performing Comparative Genomics research. It provides an open-ended network of interconnected tools to manage, analyze, and visualize next-gen data."_
 
-__[ENSEMBL](https://useast.ensembl.org/index.html).__ *Ensembl is a genome browser for vertebrate genomes that supports research in comparative genomics, evolution, sequence variation and transcriptional regulation. Ensembl annotate genes, computes multiple alignments, predicts regulatory function and collects disease data. Ensembl tools include BLAST, BLAT, BioMart and the Variant Effect Predictor (VEP) for all supported species.*
+__[ENSEMBL](https://useast.ensembl.org/index.html).__ "_Ensembl is a genome browser for vertebrate genomes that supports research in comparative genomics, evolution, sequence variation and transcriptional regulation. Ensembl annotate genes, computes multiple alignments, predicts regulatory function and collects disease data. Ensembl tools include BLAST, BLAT, BioMart and the Variant Effect Predictor (VEP) for all supported species._"
 
-__[i5k Workspace](https://i5k.nal.usda.gov/content/data-downloads).__
+__[FlyBase](https://flybase.org/).__ A database for drosophila genetics and molecular biology.
 
-__[NCBI - Genome](https://www.ncbi.nlm.nih.gov/genome/).__
+__[i5k Workspace](https://i5k.nal.usda.gov/content/data-downloads).__ "_If you use genomics to study arthropods, you are an i5k member!_" Goals of the i5k are to: (i) "_Organize the sequencing and analysis of the genomes of 5,000 arthropod species_", (ii) "_Provide guidelines and best practices for arthropod genome projects and their data management_", (iii) "_Help exisiting and new arthropod genome projects to find the most appropriate repository for their needs_", and (iv) "_Grow a community around arthropod genomes that works towards improved sequencing, assembly, annotation, and data management standards._"
 
-__[Phytozome](https://phytozome.jgi.doe.gov/pz/portal.html).__
+__[NCBI - Genome](https://www.ncbi.nlm.nih.gov/genome/).__ "_This resource organizes information on genomes including sequences, maps, chromosomes, assemblies, and annotations._"
 
-__[Mycocosm](https://genome.jgi.doe.gov/mycocosm/home).__
+__[Phytozome](https://phytozome.jgi.doe.gov/pz/portal.html).__ "_Phytozome, the Plant Comparative Genomics portal of the Department of Energy's Joint Genome Institute, provides JGI users and the broader plant science community a hub for accessing, visualizing and analyzing JGI-sequenced plant genomes, as well as selected genomes and datasets that have been sequenced elsewhere. As of release v12.1.6, Phytozome hosts 93 assembled and annotated genomes, from 82 Viridiplantae species._"
 
-__[Vectorbase](https://www.vectorbase.org/).__
+__[Mycocosm](https://genome.jgi.doe.gov/mycocosm/home).__ Similar to Phytozome, but for fungi. Check if genome is publicly available ([green highlighted](https://genome.jgi.doe.gov/fungi/fungi.info.html))
+
+__[Vectorbase](https://www.vectorbase.org/).__ "_VectorBase is a National Institute of Allergy and Infectious Diseases (NIAID) Bioinformatics Resource Center (BRC) providing genomic, phenotypic and population-centric data to the scientific community for invertebrate vectors of human pathogens._"
 
 ## Sequence respositories
 
