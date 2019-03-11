@@ -16,9 +16,9 @@ __[FungiDB](https://fungidb.org/fungidb/).__ "_The fungal and oomycete genomics 
 
 __[i5k Workspace](https://i5k.nal.usda.gov/content/data-downloads).__ "_If you use genomics to study arthropods, you are an i5k member!_" Goals of the i5k are to: (i) "_Organize the sequencing and analysis of the genomes of 5,000 arthropod species_", (ii) "_Provide guidelines and best practices for arthropod genome projects and their data management_", (iii) "_Help exisiting and new arthropod genome projects to find the most appropriate repository for their needs_", and (iv) "_Grow a community around arthropod genomes that works towards improved sequencing, assembly, annotation, and data management standards._"
 
-__[NCBI - Genome](https://www.ncbi.nlm.nih.gov/genome/).__ "_This resource organizes information on genomes including sequences, maps, chromosomes, assemblies, and annotations._"
-
 __[Mycocosm](https://genome.jgi.doe.gov/mycocosm/home).__ Similar to Phytozome, but for fungi. Check if genome is publicly available ([green highlighted](https://genome.jgi.doe.gov/fungi/fungi.info.html))
+
+__[NCBI - Genome](https://www.ncbi.nlm.nih.gov/genome/).__ "_This resource organizes information on genomes including sequences, maps, chromosomes, assemblies, and annotations._"
 
 __[Phytozome](https://phytozome.jgi.doe.gov/pz/portal.html).__ "_Phytozome, the Plant Comparative Genomics portal of the Department of Energy's Joint Genome Institute, provides JGI users and the broader plant science community a hub for accessing, visualizing and analyzing JGI-sequenced plant genomes, as well as selected genomes and datasets that have been sequenced elsewhere. As of release v12.1.6, Phytozome hosts 93 assembled and annotated genomes, from 82 Viridiplantae species._"
 
