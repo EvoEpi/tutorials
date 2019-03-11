@@ -16,7 +16,7 @@ __[Mycocosm](https://genome.jgi.doe.gov/mycocosm/home).__
 
 __[Vectorbase](https://www.vectorbase.org/).__
 
-## Sequencing respositories
+## Sequence respositories
 
 __[Gene Expression Ombibus (GEO)](https://www.ncbi.nlm.nih.gov/geo/).__ GEO is a public functional genomics data repository. It is very similar to the SRA (below) and often links between the two repositories are available.
 
@@ -53,7 +53,9 @@ Examples:
 
 Downloading SRR304976 by wget or FTP:
 
+```bash
 wget ftp://ftp-trace.ncbi.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR304/SRR304976/SRR304976.sra
+```
 
 [Phil Ewels](http://phil.ewels.co.uk/) has written a lovely program ([SRA explorer](https://ewels.github.io/sra-explorer/)) to collect SRA datasets and get a quick bash download script for either SRA files or FastQ files.
 
