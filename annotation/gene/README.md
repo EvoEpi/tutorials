@@ -1,6 +1,6 @@
 # InterProScan
 
-InterProScan is a tool that combines different protein signature recognition methods into one resource. The number of signature databases and their associated scanning tools, as well as the further refinement procedures, increases the complexity of the problem._" More details are at [EMBL-EBI](http://www.ebi.ac.uk/interpro/).
+"_InterProScan is a tool that combines different protein signature recognition methods into one resource. The number of signature databases and their associated scanning tools, as well as the further refinement procedures, increases the complexity of the problem._" More details are at [EMBL-EBI](http://www.ebi.ac.uk/interpro/).
 
 __-appl__ Optional, comma separated list of analyses. If this option is not set, ALL analyses will be run.  
 __-cpu__ Optional, number of cores for inteproscan.  
