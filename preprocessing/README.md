@@ -7,7 +7,7 @@ PE:
 ```bash
 NP="" #number of processors
 FASTQ="" #basename of fastq file; i.e., string before [_1|_2].fastq|[_1|_2].fq
-PATH="" #path to adapter and other Illumina-specific sequences
+FASTAPATH="" #path to adapter and other Illumina-specific sequences
 FASTA="" #fasta file name of adapter and PCR primer sequences to trim
 #other parameters are kept as default
 
@@ -21,7 +21,7 @@ ${FASTQ}_1_P.fastq \
 ${FASTQ}_1_U.fastq \
 ${FASTQ}_2_P.fastq \
 ${FASTQ}_2_U.fastq \
-ILLUMINACLIP:${PATH}/${FASTA}:2:30:10 \
+ILLUMINACLIP:${FASTAPATH}/${FASTA}:2:30:10 \
 LEADING:3 \
 TRAILING:3 \
 SLIDINGWINDOW:4:15 \
@@ -43,7 +43,7 @@ java -jar trimmomatic-0.36.jar SE \
 -trimlog ${FASTQ}_trimmomatic.log \
 ${FASTQ}.fastq \
 ${FASTQ}_T.fastq \
-ILLUMINACLIP:${PATH}/${FASTA}:2:30:10 \
+ILLUMINACLIP:${FASTAPATH}/${FASTA}:2:30:10 \
 LEADING:3 \
 TRAILING:3 \
 SLIDINGWINDOW:4:15 \
