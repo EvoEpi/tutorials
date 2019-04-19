@@ -4,7 +4,7 @@
 
 __-appl__ Optional, comma separated list of analyses. If this option is not set, ALL analyses will be run.  
 __-cpu__ Optional, number of cores for inteproscan.  
-__-f__ Optional, case-insensitive, comma separated list of output formats. Supported formats are TSV, XML, JSON, GFF3, HTML and SVG. Default for protein sequences are TSV, XML and GFF3, or for nucleotide
+__-f__ Optional, case-insensitive, comma separated list of output formats. Supported formats are TSV, XML, JSON, GFF3, HTML and SVG. Default for protein sequences are TSV, XML and GFF3, or for nucleotide  
 __-goterms__ Optional, switch on lookup of corresponding Gene Ontology annotation (IMPLIES -iprlookup option)  
 __-i__ Optional, path to fasta file that should be loaded on Master startup. Alternatively, in CONVERT mode, the InterProScan 5 XML file to convert.  
 __-iprlookup__ Also include lookup of corresponding InterPro annotation in the TSV and GFF3 output formats.  
