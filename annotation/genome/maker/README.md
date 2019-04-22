@@ -98,10 +98,9 @@ After `MAKER` is done running we assemble together the GFF and FASTA outputs. If
 
 ```bash
 cd CorFlo.maker.output
-gff3_merge -s -d CorFlo_master_datastore_index.log > CorFlo.all.maker.gff
-fasta_merge -d CorFlo_master_datastore_index.log
-# GFF w/o the sequences
-gff3_merge -n -s -d CorFlo_master_datastore_index.log > CorFlo.all.maker.noseq.gff
+gff3_merge -s -d CorFlo_rnd1_master_datastore_index.log > CorFlo_rnd1.all.maker.gff
+fasta_merge -d CorFlo_rnd1_master_datastore_index.log
+gff3_merge -n -s -d CorFlo_rnd1_master_datastore_index.log > CorFlo_rnd1.all.maker.noseq.gff
 ```
 
 If the genome assembly fasta file was broken into, say five chromosomes, you will need to combine the log files before running `gff3_merge` and `fasta_merge`.
@@ -124,13 +123,13 @@ cat chr*/CorFlo.maker.output/CorFlo_master_datastore_index.log > \
 temp.log
 
 #change path and write to a new log file, and remove temp.log
-awk -F"\t" '{print $1 "\t" $1 "/CorFlo.maker.output/" $2 "\t" $3}' temp.log > CorFlo_master_datastore_index.log
+awk -F"\t" '{print $1 "\t" $1 "/CorFlo.maker.output/" $2 "\t" $3}' temp.log > CorFlo_rnd1_master_datastore_index.log
 rm temp.log
 
 #run gff3_merge and fasta_merge on concatenated log file
-gff3_merge -s -d CorFlo_master_datastore_index.log > CorFlo.all.maker.gff
-fasta_merge -d CorFlo_master_datastore_index.log
-gff3_merge -n -s -d CorFlo_master_datastore_index.log > CorFlo.all.maker.noseq.gff
+gff3_merge -s -d CorFlo_rnd1_master_datastore_index.log > CorFlo_rnd1.all.maker.gff
+fasta_merge -d CorFlo_rnd1_master_datastore_index.log
+gff3_merge -n -s -d CorFlo_rnd1_master_datastore_index.log > CorFlo_rnd1.all.maker.noseq.gff
 ```
 
 __Step 4.2__. Training gene prediction software.
@@ -146,7 +145,7 @@ mkdir snap
 mkdir snap/round1
 cd snap/round1
 #export 'confident' gene models from MAKER and rename to something meaningful
-maker2zff -x 0.25 -l 50 -d ../../CorFlo_master_datastore_index.log
+maker2zff -x 0.25 -l 50 -d ../../CorFlo_rnd1_master_datastore_index.log
 mv genome.ann CorFlo_rnd1.zff.length50_aed0.25.ann
 mv genome.dna CorFlo_rnd1.zff.length50_aed0.25.dna
 #gather some stats and validate
@@ -164,4 +163,58 @@ cd ..
 hmm-assembler.pl CorFlo_rnd1.zff.length50_aed0.25 params > CorFlo_rnd1.zff.length50_aed0.25.hmm
 ```
 
-__AUGUSTUS__
+__[AUGUSTUS](http://bioinf.uni-greifswald.de/augustus/)__
+
+Training `AUGUSTUS` is a more laborious process. Luckily, the recent release of `BUSCO` provides a nice pipeline for performing the training, while giving you an idea of how good your annotation already is. If you don't want to go this route, there are scripts provided with `AUGUSTUS` to perform the training. First, the `Parallel::ForkManager` module for `Perl` is required to run `BUSCO` with more than one core. You can easily install it before the first time you use `BUSCO` by running `sudo apt-get install libparallel-forkmanager-perl`.
+
+First, we must put together training sequences using the gene models we created in our first run of `MAKER`. We do this by issuing the following command to excise the regions that contain mRNA annotations based on our initial `MAKER` run (with 1000bp on each side).
+
+```bash
+awk -v OFS="\t" '{ if ($3 == "mRNA") print $1, $4, $5 }' CorFlo_rnd1.all.maker.noseq.gff | \
+awk -v OFS="\t" '{ if ($2 < 1000) print $1, "0", $3+1000; else print $1, $2-1000, $3+1000 }' | \
+bedtools getfasta -fi <genome assembly fasta file> -bed - -fo CorFlo_rnd1.all.maker.transcripts1000.fasta
+```
+
+You will likely get warnings from `BEDtools` that certain coordinates could not be used to extract FASTA sequences. This is because the end coordinate of a transcript plus 1000 bp is beyond the total length of a given scaffold. Don't worry, as we still end up with sequences from thousands of gene models and `BUSCO` will only be searching for a small subset of genes itself.
+
+While we've only provided sequences from regions likely to contain genes, we've totally eliminated any existing annotation data about the starts/stops of gene elements. `AUGUSTUS` would normally use this as part of the training process. However, `BUSCO` will essentially do a reannotation of these regions using `BLAST` and built-in HMMs for a set of conserved genes. This has the effect of recreating some version of our gene models for these conserved genes. We then leverage the internal training that `BUSCO` can perform (the `--long` argument) to optimize the HMM search model to train `AUGUSTUS` and produce a trained HMM for `MAKER`. Here is the command we use to perform the `AUGUSTUS` training inside `BUSCO`.
+
+```bash
+mkdir augustus
+mkdir augustus/round1
+cd augustus/round1
+
+python BUSCO.py \
+-i CorFlo_rnd1.all.maker.transcripts1000.fasta \
+-o CorFlo_rnd1_maker \
+-l embryophyta_odb9/ \
+-m genome \
+-c 24 \
+--long \
+-sp arabidopsis \
+-z \
+--augustus_parameters='--progress=true'
+```
+
+`BUSCO` will try to identify those gene using `BLAST` and an initial HMM model for each that comes stocked within `BUSCO`. We specify the `-m genome` option since we are giving BUSCO regions that include more than just transcripts. The initial HMM model we'll use is the arabidopsis one (`-sp arabidopsis`). Finally, the `--long` option tells `BUSCO` to use the initial gene models it creates to optimize the HMM settings of the raw human HMM, thus training it for our use on dogwood. We can have this run in parallel on several cores, but it will still likely take days, so be patient.
+
+Once `BUSCO` is complete, it will give you an idea of how complete your annotation is (though be cautious, because we haven't filtered away known alternative transcripts that will be binned as duplicates). We need to do some post-processing of the HMM models to get them ready for `MAKER`. First, we'll rename the files within `augustus/round1/run_CorFlo_rnd1_maker/augustus_output/retraining_parameters`.
+
+```bash
+rename BUSCO_CorFlo_rnd1_maker_1328104859 Cornus_florida *
+```
+
+We also need to rename the files cited within certain HMM configuration files.
+
+```bash
+sed -i 's/BUSCO_CorFlo_rnd1_maker_1328104859/Cornus_florida/g' Cornus_florida_parameters.cfg
+sed -i 's/BUSCO_CorFlo_rnd1_maker_1328104859/Cornus_florida/g' Cornus_florida_parameters.cfg.orig1
+```
+
+Finally, we must copy these into the `$AUGUSTUS_CONFIG_PATH` species HMM location so they are accessible by `AUGUSTUS` and `MAKER`.
+
+```bash
+# may need to sudo
+mkdir $AUGUSTUS_CONFIG_PATH/species/Cornus_florida
+cp Cornus_florida*  $AUGUSTUS_CONFIG_PATH/species/Cornus_florida/
+```
